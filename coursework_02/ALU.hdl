@@ -21,5 +21,24 @@ CHIP ALU {
     OUT out[16], zr, ng;
 
     PARTS:
+    Mux16(y=x, sel=zx, out=a);
+    Not16(x=a, out=b);
+    Mux16(x=b, y=a, sel=nx, out=c);
 
+    Mux16(y=y, sel=zy, out=d);
+    Not16(x=d, out=e);
+    Mux16(x=e, y=d, sel=ny, out=g);
+
+    And16(x=c, y=g, out=h);
+    Add16(x=c, y=g, out=i);
+    Mux16(x=h, y=i, sel=f, out=j);
+
+    Not16(x=j, out=k);
+    Mux16(x=k, y=j, sel=no, out=l);
+
+    Or8Way(x=l[7], out=m);       //need to split 16 bit input into 2 8 bit streams
+    Or8Way(x=l[15], out=n);
+    Or(x=m, y=n, out=o);
+    Not(x=o, out=zr);
+    ng=l[15];
 }
