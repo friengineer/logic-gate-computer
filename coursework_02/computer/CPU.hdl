@@ -39,5 +39,34 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
+    Not(x=inM[15], out=aInst);
+    And(x=inM[15], y=inM[14], out=intermediate);
+    And(x=intermediate, y=inM[13], out=cInst);
+    And(x=cInst, y=inM[12], out=srcM);
+    And(x=cInst, y=inM[11], out=aluZx);
+    And(x=cInst, y=inM[10], out=aluNx);
+    And(x=cInst, y=inM[9], out=aluZy);
+    And(x=cInst, y=inM[8], out=aluNy);
+    And(x=cInst, y=inM[7], out=aluF);
+    And(x=cInst, y=inM[6], out=aluNo);
+    And(x=cInst, y=inM[5], out=destA);
+    And(x=cInst, y=inM[4], out=destD);
+    And(x=cInst, y=inM[3], out=destM);
+    Or(x=aInst, y=destA, out=loadA);
+    And(x=cInst, y=inM[2], out=jmpLt);
+    And(x=cInst, y=inM[1], out=jmpEq);
+    And(x=cInst, y=inM[0], out=jmpGt);
 
+    Mux16(x=outM, y=instruction, sel=aInst, out=loadA);   //check if out should be loadA
+    Mux16(x=loadA, y=inM, sel=srcM, out=);
+    ALU(x=destD, y=, zx=aluZx, nx=aluNx, zy=aluZy, ny=aluNy, f=aluF, no=aluNo, out=outM, zr=aluZr, ng=aluNg);
+
+    Or(x=aluZr, y=aluNg, out=aluPos);  //see if OR is right or if NOR then NOT is needed
+    And(x=aluNg, y=jmpLt, out=jlt);
+    And(x=aluZr, y=jmpEq, out=jeq);
+    Or(x=jlt, y=jeq, out=intermediate2);
+    And(x=aluPos, y=jmpGt, out=jgt);
+    Or(x=intermediate2, y=jgt, out=jmp);
+
+    PC(x=loadA, load=jmp, inc=, reset=reset);
 }
