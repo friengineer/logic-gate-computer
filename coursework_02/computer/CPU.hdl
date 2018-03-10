@@ -39,40 +39,38 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    Not(x=inM[15], out=aInst);
-    And(x=inM[15], y=inM[14], out=intermediate);
-    And(x=intermediate, y=inM[13], out=cInst);
-    And(x=cInst, y=inM[12], out=srcM);
-    And(x=cInst, y=inM[11], out=aluZx);
-    And(x=cInst, y=inM[10], out=aluNx);
-    And(x=cInst, y=inM[9], out=aluZy);
-    And(x=cInst, y=inM[8], out=aluNy);
-    And(x=cInst, y=inM[7], out=aluF);
-    And(x=cInst, y=inM[6], out=aluNo);
-    And(x=cInst, y=inM[5], out=destA);
-    And(x=cInst, y=inM[4], out=destD);
-    And(x=cInst, y=inM[3], out=destM, out=writeM);
+    Not(x=instruction[15], out=aInst);
+    And(x=instruction[15], y=instruction[14], out=intermediate);
+    And(x=intermediate, y=instruction[13], out=cInst);
+    And(x=cInst, y=instruction[12], out=srcM);
+    And(x=cInst, y=instruction[11], out=aluZx);
+    And(x=cInst, y=instruction[10], out=aluNx);
+    And(x=cInst, y=instruction[9], out=aluZy);
+    And(x=cInst, y=instruction[8], out=aluNy);
+    And(x=cInst, y=instruction[7], out=aluF);
+    And(x=cInst, y=instruction[6], out=aluNo);
+    And(x=cInst, y=instruction[5], out=destA);
+    And(x=cInst, y=instruction[4], out=destD);
+    And(x=cInst, y=instruction[3], out=destM, out=writeM);
     Or(x=aInst, y=destA, out=loadA);
-    And(x=cInst, y=inM[2], out=jmpLt);
-    And(x=cInst, y=inM[1], out=jmpEq);
-    And(x=cInst, y=inM[0], out=jmpGt);
+    And(x=cInst, y=instruction[2], out=jmpLt);
+    And(x=cInst, y=instruction[1], out=jmpEq);
+    And(x=cInst, y=instruction[0], out=jmpGt);
 
-    Mux16(x=intermediate5, y=instruction, sel=aInst, out=intermediate3);   //check if out should be loadA
+    Mux16(x=intermediate5, y=instruction, sel=aInst, out=intermediate3);
     ARegister(in=intermediate3, load=loadA, out=intermediate4, out[0..14]=addressM);  //think of addressM placement
     Mux16(x=intermediate4, y=inM, sel=srcM, out=AM);
     ALU(x=intermediate6, y=AM, zx=aluZx, nx=aluNx, zy=aluZy, ny=aluNy, f=aluF, no=aluNo, out=intermediate5, out=outM, zr=aluZr, ng=aluNg);
     DRegister(in=intermediate5, load=destD, out=intermediate6);
 
-    //Or(x=aluZr, y=aluNg, out=intermediate7);
-    Not(x=aluZr, out=intermediate7);
-    Not(x=aluNg, out=aluPos);
+    Or(x=aluZr, y=aluNg, out=intermediate7);
     And(x=intermediate7, y=aluPos, out=intermediate8);
-    //Not(x=intermediate7, out=aluPos);
+    Not(x=intermediate7, out=aluPos);
     And(x=aluNg, y=jmpLt, out=jlt);
     And(x=aluZr, y=jmpEq, out=jeq);
     Or(x=jlt, y=jeq, out=intermediate2);
-    And(x=intermediate8, y=jmpGt, out=jgt);
+    And(x=aluPos, y=jmpGt, out=jgt);
     Or(x=intermediate2, y=jgt, out=jmp);
 
-    PC(x=intermediate4, load=jmp, inc=intermediate7, reset=reset, out[0..14]=pc);
+    PC(x=intermediate4, load=jmp, inc=true, reset=reset, out[0..14]=pc);
 }

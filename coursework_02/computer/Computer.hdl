@@ -13,11 +13,13 @@
  * screen may show some output and the user may be able to interact
  * with the computer via the keyboard.
  */
- 
+
 CHIP Computer {
 
     IN reset;
 
     PARTS:
-
+    ROM32K(address=e, out=a);
+    CPU(inM=f, instruction=a, reset=reset, outM=b, writeM=c, addressM=d, pc=e);
+    Memory(in=b, load=c, address=d, out=f);
 }
