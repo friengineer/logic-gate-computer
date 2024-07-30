@@ -1,0 +1,19 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/1/And.hdl
+
+/**
+ * And gate:
+ * out = 1 if (x == 1 and y == 1)
+ *          0 otherwise
+ */
+
+CHIP And {
+    IN x, y;
+    OUT out;
+
+    PARTS:
+    Nand(x=x,y=y,out=a);
+    Nand(x=a,y=a,out=out);
+}

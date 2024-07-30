@@ -1,0 +1,42 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/2/ALU.hdl
+
+/**
+ * The ALU. Computes one of the following functions:
+ * x+y, x-y, y-x, 0, 1, -1, x, y, -x, -y, !x, !y,
+ * x+1, y+1, x-1, y-1, x&y, x|y on two 16-bit inputs,
+ * according to 6 input bits denoted zx,nx,zy,ny,f,no.
+ * The bit-combinations that yield each function are
+ * documented in the book. In addition, the ALU
+ * computes two 1-bit outputs: if the ALU output
+ * is 0, zr is set to 1; otherwise zr is set to 0;
+ * If out<0, ng is set to 1; otherwise ng is set to 0.
+ */
+
+CHIP ALU {
+    IN x[16], y[16], zx, nx, zy, ny, f, no;
+    OUT out[16], zr, ng;
+
+    PARTS:
+    Mux16(x=x, y=false, sel=zx, out=a);
+    Not16(x=a, out=b);
+    Mux16(x=a, y=b, sel=nx, out=c);
+
+    Mux16(y=false, x=y, sel=zy, out=d);
+    Not16(x=d, out=e);
+    Mux16(x=d, y=e, sel=ny, out=g);
+
+    And16(x=c, y=g, out=h);
+    Add16(x=c, y=g, out=i);
+    Mux16(x=h, y=i, sel=f, out=j);
+
+    Not16(x=j, out=k);
+    Mux16(x=j, y=k, sel=no, out[0..7]=out1, out[8..15]=out2, out[15]=ng, out=out);
+
+    Or8Way(x=out1, out=l);
+    Or8Way(x=out2, out=m);
+    Or(x=l, y=m, out=n);
+    Not(x=n, out=zr);
+}
